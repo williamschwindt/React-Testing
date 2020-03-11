@@ -1,8 +1,6 @@
 import React from 'react';
 import {
   render,
-  fireEvent,
-  waitForElement,
   wait
 } from '@testing-library/react';
 import App from './App';
@@ -47,6 +45,8 @@ test("app fetches show data and renders it", async() => {
     getByText(/fetching data.../i);
 
     await wait();
+
+    getByText(/select a season/i);
 })
 
 

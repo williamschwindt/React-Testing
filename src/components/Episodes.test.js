@@ -1,8 +1,14 @@
 import React from 'react';
 import {
-  render
+  render, wait, fireEvent
 } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import App from '../App';
 import Episodes from './Episodes';
+import { fetchShow as mockFetchShow } from '../api/fetchShow';
+import { data } from '../mockData';
+
+jest.mock("../api/fetchShow");
 
 const theEpisodes = [
     {
@@ -35,9 +41,23 @@ const theEpisodes = [
         self: {href: "http://api.tvmaze.com/episodes/578663"},
         __proto__: Object
     }
-]
+];
 
-test("Episodes show up when selected", () => {
+test("Correct episodes render on season selection", async() => {
+    mockFetchShow.mockResolvedValueOnce(data);
+
+    const { getByText, getAllByText } = render(<App />);
+    await wait(() => {getByText(/select a season/i)});
+
+    userEvent.click(getByText(/select a season/i));
+    expect(getAllByText(/season /i)).toHaveLength(4);
+    expect(mockFetchShow).toHaveBeenCalledTimes(1);
+
+    userEvent.click(getByText(/season 1/i));
+    expect(getByText(/season 1, episode 1/i)).toBeInTheDocument();
+})
+
+test("Episodes render when props change", () => {
     const { queryAllByTestId, rerender } = render(<Episodes episodes={[]}/>);
 
     expect(queryAllByTestId("episode")).toStrictEqual([]);
